@@ -1,15 +1,16 @@
 ---
 name: zhengliu
-description: '人类蒸馏企划：输入人名/主题/甚至只是模糊需求，自动深度调研→思维框架提炼→生成可运行的人物Skill。尤其适合设计评审、过稿收敛、leader判断风格提炼、设计师工作方法沉淀等场景。
+description: '人类蒸馏企划：专注蒸馏人物、leader判断方式、设计评审逻辑与过稿标准，生成可运行的设计师导向Skill。
 
-  两种入口：(1)明确人名→直接蒸馏 (2)模糊需求→诊断推荐→再蒸馏。
+  适用入口：(1)明确人名/角色/leader (2)明确评审主题，如“提炼过稿逻辑”“提炼leader判断标准”。
 
-  触发词：「造skill」「蒸馏XX」「人类蒸馏企划」「提炼」「XX的思维方式」「做个XX视角」「更新XX的skill」「提炼leader的判断标准」「提炼过稿风格」「提炼设计评审逻辑」。
+  推荐触发词：「蒸馏XX」「做个XX skill」「做个XX视角」「更新XX的skill」「提炼leader判断标准」「提炼过稿风格」「提炼设计评审逻辑」。
 
-  模糊需求也触发：「我想提升决策质量」「有没有一种思维方式能帮我...」「我需要一个思维顾问」。'
-description_zh: 蒸馏人物思维框架，生成可运行的人物 Skill
-description_en: Distill thinking frameworks from people and generate runnable persona Skills
-version: 1.0.1
+  不建议仅用泛词单独触发，如：「提炼」「总结」「分析一下」。'
+description_zh: 蒸馏人物、leader判断与设计评审逻辑，生成可运行的设计师导向 Skill
+description_en: Distill people, leader judgment, and design review logic into a runnable design-oriented skill
+version: 1.1.0
+
 ---
 
 # 人类蒸馏企划 · Skill框架术
@@ -102,312 +103,26 @@ version: 1.0.1
 
 ---
 
-## 扩展模式：Codex 本地能力自我蒸馏
+## 拆分说明：Codex 自我蒸馏已移出主技能
 
-当用户要蒸馏的对象不是某个公众人物，而是 **Codex 自己的本地能力、工作方式、skill 体系、失败模式、项目规则或 worker/subagent 机制** 时，切换到「自我蒸馏模式」。
+`zhengliu` 主技能现在只负责：
+- 人物蒸馏
+- leader 判断标准蒸馏
+- 设计评审逻辑与过稿风格蒸馏
 
-典型触发：
-- 「帮我审计 Codex 最近都在干什么」
-- 「把我最近反复让 Codex 做的事沉淀成 skill」
-- 「看看哪些 skill 装了但没触发」
-- 「把失败案例反向沉淀到规则里」
-- 「给 Codex 做一个本地能力升级方案」
-- 「审计 worker / subagent 有没有真的落地」
+以下任务不再由 `zhengliu` 主技能承接：
+- 审计 Codex 最近都在干什么
+- 审计本地 skills / workers / validators / receipts
+- 给 Codex 做本地能力升级、安装计划、回滚方案
 
-这个模式的目标不是生成某个人物画像，而是把 Codex 从单次任务执行器升级成可复用、可验证、可自我修复的本地能力系统。
+这类任务已经拆到独立 skill：
+- 仓库版：`extras/codex-self-distill/SKILL.md`
+- 本地安装版：`~/.codex/skills/codex-self-distill/SKILL.md`
 
-### 自我蒸馏模式的硬规则
-
-1. 先审计，后生成 candidate，不直接覆盖正式能力。
-2. 先输出 patch candidate、skill candidate、validator candidate，再决定是否安装。
-3. 不删除文件，不覆盖正式 skill、正式配置或正式项目规则。
-4. 不把 mock、dry-run、只读扫描误报为真实完成。
-5. 所有判断尽量绑定证据路径；没有证据就标记 `evidence_missing`。
-6. 至少选择一个高优先级场景做一次真实或半真实验证，不允许只写报告。
-7. 高风险动作必须停在候选或本地验证层，等待人工确认。
-
-### 自我蒸馏模式的产出目标
-
-需要系统性回答这些问题：
-- 我最近反复让 Codex 做的事情是什么
-- 我最近反复做的工作有哪些
-- 我的 leader 对我的工作评价有哪些
-- leader 们对于业务的判断标准是什么
-- leader 们对于工作成果优劣的判断标准是什么
-- 我给过来的问题，最终要回复的是一张图、一个方案，还是一个面向未来的判断
-- 哪些工作流值得沉淀成 skill、worker、automation、validator 或项目规则
-- 哪些已有 skill 可能装了但没有真正触发
-- 哪些产物存在变薄、泛泛而谈、缺证据、缺验证的问题
-- 哪些 worker / subagent 只是写在文档里，没有真实进入执行
-- 哪些失败案例和用户纠正意见还没有沉淀进规则
-- 哪些能力应该生成 patch、runner、validator、installation plan
-
-如果任务明显属于设计师工作流，自我蒸馏模式还要额外回答：
-- 我最近反复处理的设计类型和评审场景是什么
-- 我是更常被要求出图、出标注、做判断，还是做未来方向判断
-- 哪些 leader 评价和纠偏，已经构成了稳定的过稿标准
-- 哪些设计任务其实要回的是“更容易过稿的图”，而不是抽象策略
-- 哪些设计任务其实要回的是“未来判断”，而不是继续打磨当前稿
-
-### 自我蒸馏模式的证据范围
-
-默认优先分析最近 30 天；证据不足时扩展到最近 60 天，再不足则抽样更久历史。
-
-优先扫描：
-- 当前工作目录和项目根目录
-- 可发现的 `AGENTS.md`、`README`、`docs`、`scripts`、`tools`、`tests`
-- 用户级或项目级 `skills`、`.agents`、`outputs`、`reports`、`receipts`
-- `handoff`、`validator`、`runner`、`automation`、`logs`
-- HTML / PDF / Markdown / JSON / CSV / SQLite 等真实产物
-- 设计稿截图、图上标注、聊天截图、leader 批注、评审回执、改稿前后版本
-
-如果路径不存在、权限不足或不可读，不停止；记录 `unavailable` 或 `permission_denied` 后继续。
-
-### 自我蒸馏模式的标准执行阶段
-
-#### Phase S1: 环境探测与证据索引
-
-至少建立这些索引：
-- 项目根目录和可写输出位置
-- 可发现的 skill、AGENTS.md、runner、validator、automation 数量
-- handoff / receipt / report / artifact 数量
-- 最近修改时间分布
-- 可读证据、不可读证据、过旧证据
-- 后续最值得分析的高价值证据
-
-#### Phase S2: 重复工作流与失败模式提取
-
-提取高频工作模式，例如：
-- 编码、重构、测试、调试
-- 项目理解、代码库地图、架构说明
-- 数据分析、报告生成、研究总结
-- 网页、前端、可视化、仪表盘
-- skill 创建、skill 升级、skill 测试
-- 多 agent、worker、subagent 协作
-- 回执、handoff、审计、验收
-- 设计评审、过稿收敛、交互改稿、leader 风格对齐、图上标注
-
-同时提取失败模式，例如：
-- 产物内容变薄
-- 只有通用话术
-- 结论缺证据
-- 图表没有回答问题
-- skill 装了但没有触发
-- skill description 太泛
-- worker / subagent 只停留在概念
-- validator 只测形式，不测业务质量
-- 回执生成了，但没有反哺 skill
-- 用户多次纠正但规则没有沉淀
-- 明明用户要的是一张图，却只回了一段判断
-- 明明用户要未来判断，却只在当前稿上打转
-- 只提审美，不提业务目标、leader 标准和过稿条件
-- 只说“有点弱”，却没落到具体怎么改
-
-每个失败模式都要输出：
-- 问题名称
-- 证据路径
-- 证据摘要
-- 发生频率
-- 严重程度
-- 根因判断
-- 建议沉淀位置：`skill / AGENTS.md / validator / worker / automation / runner / skip`
-- 是否需要人工确认
-
-#### Phase S3: Skill 触发与复用审计
-
-审计所有可发现的 skill，重点检查：
-- 名称和 description 是否清晰
-- 是否包含用户真实说法和触发词
-- `when to use` / `when not to use` 是否明确
-- 是否有稳定输入、流程、输出
-- 是否有 validator、smoke test、真实任务验证、回执格式、失败修复
-- 是否吸收最近回执和失败案例
-- 是否与其它 skill 重叠或存在版本残留
-- 是否有“装了但没触发”的风险
-- 对设计任务时，是否能识别用户要的是 `图 / 标注 / 改稿 / 判断 / 未来判断`
-- 是否能提炼 leader 判断标准，而不是只提炼视觉喜好
-
-建议输出字段：
-- skill 名称与路径
-- 当前 description
-- 触发风险评分
-- 复用价值评分
-- 主要问题
-- description patch
-- SKILL.md patch
-- validator patch
-- 是否增强旧 skill / 新建 skill / 合并 / 废弃
-- 优先级 `P0/P1/P2/P3`
-
-#### Phase S4: Worker / Subagent 机制审计
-
-判断 worker / subagent 是否真实落地，而不只是文档概念。
-
-检查是否有：
-- 明确角色
-- 明确输入 / 输出
-- 明确串并行关系
-- 明确验收
-- 明确合并机制
-- 明确失败修复
-- 明确证据路径
-- 明确启用条件和不启用条件
-
-通用 worker 候选至少包括：
-- `ResearchWorker`
-- `EvidenceWorker`
-- `PlanningWorker`
-- `ExecutionWorker`
-- `ReviewWorker`
-- `ValidatorWorker`
-- `IntegrationWorker`
-- `ReceiptWorker`
-
-如果环境支持真实 subagent，就输出可直接使用的 prompt candidate；否则输出串行模拟方案。
-
-#### Phase S5: 产物质量 Validator
-
-生成一套通用产物质量 validator，防止低质量完成。
-
-至少检查：
-- 是否真正回答用户目标
-- 是否存在空话、套话、泛泛而谈
-- 是否有清晰结构
-- 是否有可验证依据
-- 是否有输入、流程、输出、完成条件
-- 是否有质量标准
-- 是否有失败修复路径
-- 是否区分 `draft / mock / dry-run / real execution`
-- 是否有明确证据路径
-- 是否有人类可快速打开和验收的入口
-- 是否有下一步动作
-- 是否可被未来 skill 复用
-
-如果是研究 / 报告 / 网页类产物，额外检查：
-- 结论是否有依据
-- 图表是否回答明确问题
-- 排名或评分是否有方法和证据
-- 是否有反方审计
-- 是否有置信度
-- 是否有版本记录
-- 是否避免“看似完整但没有信息密度”
-
-如果是代码 / 工程类产物，额外检查：
-- 是否能运行
-- 是否有测试
-- 是否有构建命令
-- 是否有变更摘要
-- 是否有风险说明
-- 是否有回滚方案
-
-validator 产出至少包括：
-- Markdown 评分表
-- JSON schema
-- 可运行脚本 candidate（如适合）
-- 低于阈值时的返工清单
-
-#### Phase S6: 能力升级优先级矩阵
-
-按这些维度给候选能力评分：
-- 复用频率
-- 业务价值
-- 当前痛点严重程度
-- 实施难度
-- 是否减少人工重复
-- 是否减少失败复现
-- 是否提升产物质量
-- 是否提高 skill 触发率
-- 是否让 worker / subagent 落地
-- 是否可被 validator 验证
-- 是否有 smoke test
-- 是否需要人工授权
-- 是否存在安全风险
-
-优先级定义：
-- `P0`：本轮必须生成 candidate，并至少做一次验证
-- `P1`：本轮生成 patch candidate 和安装计划
-- `P2`：记录为后续增强
-- `P3`：跳过、观察或不值得沉淀
-
-#### Phase S7: 生成 Candidate，不直接安装
-
-本轮只输出候选，不直接安装。至少生成：
-- `AGENTS.md patch candidate`
-- `skill patch candidates`
-- `new skill candidates`
-- `worker / subagent candidates`
-- `goal / longrun candidates`
-- `validator candidates`
-- `installation plan and rollback`
-
-#### Phase S8: 做一次真实或半真实验证
-
-必须选择一个 `P0` 场景验证，不允许只写报告。
-
-验证方式：
-1. 选择一个已有产物、回执、skill 或历史任务样本
-2. 用新 validator 评分
-3. 找出具体问题
-4. 用 candidate 规则生成一个小型修复样例
-5. 对比修复前后
-6. 输出评分变化
-7. 判断是否建议进入下一轮正式安装或完整升级
-
-找不到合适真实样本时，可构造 fixture 做半真实验证，但必须明确标记为 `fixture`。
-
-### 自我蒸馏模式的建议输出
-
-如果任务允许写文件，优先在新的安全输出目录下生成：
-- `00_GPT可点击回执.md`
-- `01_人类总览.html`
-- `02_自我蒸馏总报告.md`
-- `03_证据索引.md`
-- `04_重复工作流候选清单.md`
-- `05_skill触发失败审计.md`
-- `06_worker_subagent机制审计.md`
-- `07_产物质量与偷懒模式诊断.md`
-- `08_能力升级优先级矩阵.md`
-- `09_AGENTS_md_patch_candidate.md`
-- `10_skill_patch_candidates/`
-- `11_new_skill_candidates/`
-- `12_worker_subagent_candidates/`
-- `13_goal_longrun_candidates/`
-- `14_validators/`
-- `15_real_or_semireal_validation/`
-- `16_installation_plan_and_rollback.md`
-- `17_NEXT_CODEX_PROMPT_二轮执行或安装指令.md`
-- `99_receipts/FINAL_RECEIPT.md`
-
-### 自我蒸馏模式的最终回执要求
-
-最终回复必须明确：
-- `TASK`
-- `STATUS`
-- `OUTPUT_DIR`
-- 最重要入口文件
-- 扫描了哪些证据
-- 发现了哪些 `P0/P1` 问题
-- 创建了哪些 candidate
-- 做了哪一次验证
-- 验证结果
-- 没有做什么以及原因
-- 风险和缺口
-- 下一轮建议
-- 是否需要人工确认安装
-
-质量底线：
-- 不要只生成空泛总结
-- 不要只说“建议优化”，必须给具体 patch
-- 不要只说“建议 worker”，必须给输入、输出、触发条件和验收方式
-- 不要只说“建议 validator”，必须给评分表、schema 或脚本候选
-- 不要把文件数量当完成
-- 不要为了形式审计牺牲真实推进
-- 所有结论尽量绑定证据路径
-- 所有 candidate 必须可读、可审查、可回滚
-
----
+这样拆的目的只有一个：让 `zhengliu` 更专注、更不容易误触发。
 
 ## 执行流程
+
 
 ### Phase 0: 入口分流
 
